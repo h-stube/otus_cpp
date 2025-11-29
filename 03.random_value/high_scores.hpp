@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 
 void write_score(std::string name, int score);

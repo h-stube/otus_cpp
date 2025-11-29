@@ -1,7 +1,8 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-#include "guess_a_number.hpp"
+
+#include "high_scores.hpp"
 
 const std::string high_scores_filename = "high_scores.txt";
 

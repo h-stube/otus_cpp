@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-#include "guess_a_number.hpp"
+#include "high_scores.hpp"
 
 
 
@@ -16,10 +16,12 @@ int main(int argc, char** argv) {
 
 	if (argc <= 2) {
 		std::cout << "Guess a number" << std::endl;
+		return 0;
 	}
 
 	if (argc > 2){
-		std::cout << "Only one number allowd" << std::endl;
+		std::cout << "Only one number allowed" << std::endl;
+		return 0;
 	}
 
 	std::cout << "Hello! This is a guess_number game! Enter your name to start: " << std::endl;
@@ -38,11 +40,12 @@ int main(int argc, char** argv) {
 			continue;
 		}
 
-		if (number > random_value){
+		else if (number > random_value){
 			std::cout << "less than " << number << std::endl;
+			continue;
 		}
 
-		if (number == random_value){
+		else {
 			std::cout << "Congratulations " << name;
 			std::cout <<  "! You won!" << std::endl;
 
