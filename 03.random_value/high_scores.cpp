@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <unordered_map>
 
 #include "high_scores.hpp"
 
@@ -26,17 +27,51 @@ void print_score(){
 		std::cout << "Failed to get score!" << std::endl;
 	}
 
-	std::cout << "High scores table:" << std::endl;
-	std::string username;
-	int high_score = 0;
-	while (true) {
+	int count = 0;
 
-		in_file >> username;
-		in_file >> high_score;
+	std::string line;	
+	while (std::getline(in_file, line)) {
+        count++;
+    }
+
+	in_file.clear();
+	in_file.seekg(0);
+	Record* records = new Record[count];
+
+	for (int i = 0; i < count; i++){
+		in_file >> records[i].name;
+		in_file >> records[i].score;
 		in_file.ignore();
-		if (in_file.fail()) {
-			break;
-		}
-		std::cout << username << '\t' << high_score << std::endl;
 	}
+
+	Record* best_records = new Record[count];
+	int best_count = 0;
+
+	for (int i = 0; i < count; i++){
+		bool found = false;
+
+		for (int j = 0; j < best_count; j++){
+			if (best_records[j].name == records[i].name){
+				found = true;
+				if (records[i].score > best_records[j].score){
+					best_records[j].score = records[i].score;
+				}
+			}
+		}
+
+		if (!found){
+			best_records[best_count].name = records[i].name;
+			best_records[best_count].score = records[i].score;
+			best_count++;
+		}
+	
+	}
+	
+	std::cout << "High scores table:" << std::endl;
+    for (int i = 0; i < best_count; i++) {
+        std::cout << best_records[i].name << '\t' << best_records[i].score << std::endl;
+    }
+    
+    delete[] records;
+    delete[] best_records;
 }

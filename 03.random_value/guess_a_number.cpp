@@ -10,18 +10,35 @@
 
 int main(int argc, char** argv) {
 	int number;
-	int tries;
-	const int max_value = 100;
+	int tries = 0;
+ 	int max_value = 100;
 	std::string name;
 
-	if (argc <= 2) {
-		std::cout << "Guess a number" << std::endl;
-		return 0;
-	}
+	if (argc >= 2){
+		for (int i = 0; i < argc; i++ ){
+		std::string arg_value {argv[i]};
+		std::string param;
+		
+		if (arg_value[0] == '-') {
 
-	if (argc > 2){
-		std::cout << "Only one number allowed" << std::endl;
-		return 0;
+			if (arg_value == "-table"){
+				print_score();
+				return 0;
+			} 
+
+			if (i + 1 < argc && argv[i + 1][0] != '-'){
+				param = argv[i + 1];
+				i++;
+			} else {
+				std::cout << "Invalid parameter" << std::endl;
+			}
+
+			if (arg_value == "-max"){
+				max_value = std::stoi(param);
+			}
+
+		}
+		}
 	}
 
 	std::cout << "Hello! This is a guess_number game! Enter your name to start: " << std::endl;
