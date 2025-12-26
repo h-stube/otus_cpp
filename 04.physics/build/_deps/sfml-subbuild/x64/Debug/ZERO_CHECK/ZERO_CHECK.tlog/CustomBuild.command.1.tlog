@@ -1,0 +1,10 @@
+^C:\OTUS\CPP\04.PHYSICS\BUILD\_DEPS\SFML-SUBBUILD\CMAKEFILES\BE3EDC60C8C42C5C9FBE7A1D07E58E8C\GENERATE.STAMP.RULE
+setlocal
+C:\dev\cmake_x64\bin\cmake.exe -SC:/otus/cpp/04.physics/build/_deps/sfml-subbuild -BC:/otus/cpp/04.physics/build/_deps/sfml-subbuild --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/sfml-populate.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

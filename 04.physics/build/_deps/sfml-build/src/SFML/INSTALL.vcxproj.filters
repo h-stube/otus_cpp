@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\otus\cpp\04.physics\build\CMakeFiles\06cfb11e73c2b0b793a8dd136b9efd11\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{DC0C5CF2-CE8D-38B9-8312-BC0693A069B5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

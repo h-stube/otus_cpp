@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/sfml-populate"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/be3edc60c8c42c5c9fbe7a1d07e58e8c/sfml-populate.rule"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/0c77db8300e86c4c59c4aedb434f5e02/sfml-populate-complete.rule"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/5458d482aaede3ee71cb6e712b2fb5c3/sfml-populate-build.rule"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/5458d482aaede3ee71cb6e712b2fb5c3/sfml-populate-configure.rule"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/5458d482aaede3ee71cb6e712b2fb5c3/sfml-populate-download.rule"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/5458d482aaede3ee71cb6e712b2fb5c3/sfml-populate-install.rule"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/5458d482aaede3ee71cb6e712b2fb5c3/sfml-populate-mkdir.rule"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/5458d482aaede3ee71cb6e712b2fb5c3/sfml-populate-patch.rule"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/5458d482aaede3ee71cb6e712b2fb5c3/sfml-populate-test.rule"
+		},
+		{
+			"file" : "C:/otus/cpp/04.physics/build/_deps/sfml-subbuild/CMakeFiles/5458d482aaede3ee71cb6e712b2fb5c3/sfml-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"sfml-populate"
+		],
+		"name" : "sfml-populate"
+	}
+}
