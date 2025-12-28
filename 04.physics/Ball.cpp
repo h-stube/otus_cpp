@@ -3,6 +3,7 @@
 
 #define PI 3.14159265358979323846
 
+
 /**
  * Задает скорость объекта
  * @param velocity новое значение скорости
@@ -31,14 +32,6 @@ void Ball::draw(Painter& painter) const {
 }
 
 /**
- * Задает координаты центра объекта
- * @param center новый центр объекта
- */
-void Ball::setCenter(const Point& center) {
-    this->center = center;
-}
-
-/**
  * @brief Возвращает центр обьекта
  * @return центр объекта
  */
@@ -55,12 +48,6 @@ double Ball::getRadius() const {
 }
 
 /**
- * @brief Устанавливает радиус обьекта
-  */
-void Ball::setRadius(const double radius) {
-    this->radius = radius;
-}
-/**
  * @brief Возвращает массу объекта
  * @details В нашем приложении считаем, что все шары
  * состоят из одинакового материала с фиксированной
@@ -69,14 +56,6 @@ void Ball::setRadius(const double radius) {
  */
 double Ball::getMass() const {
     return PI * std::pow(this->radius, 3) * 4. / 3.;
-}
-
-/**
- * @brief Устанавливает параметр шара, отвечающий за его способность
- *  сталкиваться с другими шарами 
-  */
-void Ball::setCollidability(bool isCollidable){
-    this->isCollidable = isCollidable;
 }
 
 /**

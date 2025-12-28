@@ -37,13 +37,16 @@ World::World(const std::string& worldFilePath) {
         // Создаем шар и присваеваем ему параметры
         Ball ball;
         ball.setVelocity(velocityVectorCoords);
-        ball.setCenter(centerCoords);
-        ball.setRadius(radius);
-        ball.setCollidability(isCollidable);
+        ball << centerCoords << radius << isCollidable;
         balls.push_back(ball);
     }
 }
 
+
+
+        // ball << centerCoords;
+        // ball << radius;
+        // ball << isCollidable;
 /// @brief Отображает состояние мира
 void World::show(Painter& painter) const {
     // Рисуем белый прямоугольник, отображающий границу
