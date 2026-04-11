@@ -4,15 +4,8 @@
 
 template <typename T>
 struct TwoWayNode {
-    void *next;
-    void *prev;
-    T data{};
-};
-
-template <typename T>
-struct OneWayNode {
-    void *next;
-    size_t index;
+    TwoWayNode<T> *next;
+    TwoWayNode<T> *prev;
     T data{};
 };
 
@@ -26,21 +19,17 @@ template<typename T>
 class List {
     public:
         List(std::initializer_list<T> init);
-
-        void create_node();
+        ~List();
 
         void push_back(const T element);
-        TwoWayNode<T>* get_next(TwoWayNode<T>* current_node) const ;
-        TwoWayNode<T>* get_prev(TwoWayNode<T>* current_node) const;
         void erase(const size_t index);
         void insert(const T& element, const size_t index);
         size_t size() const;
         
         const T operator[](size_t index) const;
-        friend std::ostream& operator<< <T>(std::ostream& stream, const List<T>& list);
+        friend std::ostream& operator<<(std::ostream& stream, const List<T>& list);
 
     private:
-        void _copy(T* old_array, T* new_array);
         TwoWayNode<T>* m_first{nullptr};
         TwoWayNode<T>* m_last{nullptr};
         size_t m_size{0};
@@ -58,7 +47,17 @@ List<T>::List(std::initializer_list<T> init){
 }
 
 template <typename T>
-void List<T>::push_back(const T value) {
+List<T>::~List() {
+    TwoWayNode<T>* current = m_first;
+    while (current != nullptr) {
+        TwoWayNode<T>* next = current->next;
+        delete current;
+        current = next;
+    }
+}
+
+template <typename T>
+void List<T>::push_back(const T& value) {
     TwoWayNode<T>* new_node = new TwoWayNode<T>{};
     new_node->data = value;
     new_node->next = nullptr;
@@ -74,29 +73,20 @@ void List<T>::push_back(const T value) {
     m_size += 1;
 }
 
-template <typename T>
-TwoWayNode<T>* List<T>::get_next(TwoWayNode<T>* current_node) const {
-    return static_cast<TwoWayNode<T>*>(current_node->next);
-}
-
-template <typename T>
-TwoWayNode<T>* List<T>::get_prev(TwoWayNode<T>* current_node) const{
-    return static_cast<TwoWayNode<T>*>(current_node->prev);
-}
 
 template <typename T>
 void List<T>::erase(const size_t index){
-    if (index > m_size){
+    if (index >= m_size){
         return;
     }
 
     TwoWayNode<T>* node_to_delete = m_first;
     for(size_t i = 0; i < index; i++){
-        node_to_delete = get_next(node_to_delete);
+        node_to_delete = node_to_delete->next;
     }
 
-    TwoWayNode<T>* next_node = get_next(node_to_delete);
-    TwoWayNode<T>* prev_node = get_prev(node_to_delete);
+    TwoWayNode<T>* next_node = node_to_delete->next;
+    TwoWayNode<T>* prev_node = node_to_delete->prev;
 
 
     if (prev_node != nullptr) {
@@ -117,7 +107,7 @@ void List<T>::erase(const size_t index){
 
 template <typename T>
 void List<T>::insert(const T& element, const size_t index){
-    if (index > m_size){
+    if (index >= m_size){
         return;
     }
     TwoWayNode<T>* new_node = new TwoWayNode<T>{};
@@ -137,7 +127,7 @@ void List<T>::insert(const T& element, const size_t index){
     TwoWayNode<T>* prev_node = nullptr;
     for(size_t i = 0; i < index; i++){
         prev_node = current_node;
-        current_node = get_next(current_node);
+        current_node = current_node->next;
     }
 
     TwoWayNode<T>* next_node = current_node;
@@ -169,18 +159,18 @@ size_t List<T>::size() const{
 
 template <typename T>
 const T List<T>::operator[](const size_t index) const {
-    if (index > m_size) {
+    if (index >= m_size) {
         return m_last->data;
     }
     TwoWayNode<T>* current_node = m_first;
     for(size_t i = 0; i < index; i++){
-        current_node = get_next(current_node);
+        current_node = current_node->next;
     }
     return current_node->data;
 }
 
 template <typename T>
-std::ostream& operator<< <T>(std::ostream& stream, const List<T>& list){
+std::ostream& operator<<(std::ostream& stream, const List<T>& list){
     for(size_t  i =  0; i < list.size(); i++){
         if (i + 1 == list.size()){
             stream << list[i];
