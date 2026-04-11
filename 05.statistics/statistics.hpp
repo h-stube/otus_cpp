@@ -63,15 +63,15 @@ class Max : public IStatistics {
 class Mean : public IStatistics {
     public:
         void update(double next) override {
-            sum+= next;
-            count++;
+            m_sum+= next;
+            m_count++;
         }
 
         double eval() const override {
-            if (count == 0) {
+            if (m_count == 0) {
                 return 0;
             } else {
-                return sum / count; 
+                return m_sum / m_count; 
             }
             }
 
@@ -80,25 +80,25 @@ class Mean : public IStatistics {
         }
 
     private:
-        double sum = 0.0;
-        int count = 0;
+        double m_sum = 0.0;
+        int m_count = 0;
     };
 
 
 class Std : public IStatistics {
     public:
         void update(double next) override {
-            sum+= next;
-            sum_squared += next * next;
-            count++;
+            m_sum+= next;
+            m_sum_squared += next * next;
+            m_count++;
         }
 
         double eval() const override {
-            if (count == 0) {
+            if (m_count == 0) {
                 return 0;
             } else {
-                double mean = sum / count;
-                double dispercy = (sum_squared / count) - (mean * mean);
+                double mean = m_sum / m_count;
+                double dispercy = (m_sum_squared / m_count) - (mean * mean);
                 return std::sqrt(dispercy);
             }
         }
@@ -108,30 +108,30 @@ class Std : public IStatistics {
         }
 
     private:
-        double sum_squared = 0;
-        double sum = 0;
-        int count = 0;
+        double m_sum_squared = 0.0;
+        double m_sum = 0.0;
+        int m_count = 0;
     };
 
 template<int percentil>
 class Pct : public IStatistics {
     public:
         void update(double next) override {
-            values.insert(next);
+            m_values.insert(next);
         }
 
         double eval() const override {
-            double pct = (percentil / 100.) * (values.size() - 1);
-            auto it = values.begin();
+            double pct = (percentil / 100.) * (m_values.size() - 1);
+            auto it = m_values.begin();
             std::advance(it, static_cast<int>(std::round(pct)));
             return *it;
         }
 
         const char * name() const override {
-            return class_name.c_str();
+            return m_class_name.c_str();
         }
 
     private:
-        std::multiset<double> values;
-        std::string class_name = "pct" + std::to_string(percentil);
+        std::multiset<double> m_values;
+        std::string m_class_name = "pct" + std::to_string(percentil);
     };
