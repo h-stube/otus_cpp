@@ -18,31 +18,18 @@ World::World(const std::string& worldFilePath) {
 
     physics.setWorldBox(topLeft, bottomRight);
 
-    Point centerCoords;
-    Point velocityVectorCoords;
-    Color color;
-
-    double radius;
-    bool isCollidable;
-
     while (stream.peek(), stream.good()) {
-        // Читаем координаты центра шара (x, y) и вектор
-        // его скорости (vx, vy)
-        stream >> centerCoords >> velocityVectorCoords;
-        // Читаем цвет шара его радиус и is Collidable
-        stream >> color;
-        stream >> radius;
-        stream >> std::boolalpha >> isCollidable;
-        
-        // Создаем шар и присваеваем ему параметры
         Ball ball;
-        ball.setVelocity(velocityVectorCoords);
-        ball << centerCoords << radius << isCollidable;
+        stream >> ball;
         balls.push_back(ball);
     }
 }
 
 
+
+        // ball << centerCoords;
+        // ball << radius;
+        // ball << isCollidable;
 /// @brief Отображает состояние мира
 void World::show(Painter& painter) const {
     // Рисуем белый прямоугольник, отображающий границу

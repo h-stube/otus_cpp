@@ -8,7 +8,6 @@ class Color {
     double green() const;
     double blue() const;
     friend std::istream& operator>>(std::istream& stream, Color& color);
-    // void readFromStream(std::istream& stream){stream >> r >> g >> b;}
 
   private:
     double r{};

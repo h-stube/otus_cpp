@@ -2,6 +2,7 @@
 #include "Painter.hpp"
 #include "Point.hpp"
 #include "Velocity.hpp"
+#include <istream>
 
 
 class Ball {
@@ -13,19 +14,30 @@ class Ball {
         double getMass() const;
         bool isBallColidable();
         void setVelocity(const Velocity& velocity);
+        void setCenter(const Point& center);
 
-        Ball& operator<<(Point& in_center) {center = in_center; return *this;}
-        Ball& operator<<(Color& in_color) {color = in_color; return *this;}
-        Ball& operator<<(double in_radius) {radius = in_radius; return *this;}
-        Ball& operator<<(bool in_isCollidable) {isCollidable = in_isCollidable; return *this;}
-
+        friend std::istream& operator>>(std::istream& stream, Ball& ball);
     private:
         Velocity velocity;
         Point center;
-        double radius;
         Color color;
-        bool isCollidable;
+        double radius{0.0};
+        bool isCollidable{false};
     };
 
+inline std::istream& operator>>(std::istream& stream, Ball& ball) {
+    Point centerCoords;
+    Point velocityVectorCoords;
+    
+    stream >> centerCoords >> velocityVectorCoords;
+    stream >> ball.color;
+    stream >> ball.radius;
+    stream >> std::boolalpha >> ball.isCollidable;
+    
+    ball.center = centerCoords;
+    ball.velocity.setVector(velocityVectorCoords);
+    
+    return stream;
+}
 
 

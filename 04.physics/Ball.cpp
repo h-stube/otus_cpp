@@ -12,6 +12,9 @@ void Ball::setVelocity(const Velocity& velocity) {
     this->velocity = velocity;
 }
 
+void Ball::setCenter(const Point& center) {
+    this->center = center;
+}
 /**
  * @return скорость объекта
  */

@@ -34,6 +34,9 @@ endif ()
 add_executable(physics
         main.cpp World.cpp Ball.cpp Physics.cpp Color.cpp Painter.cpp
         black_box/Application.cpp black_box/View.cpp black_box/PainterImpl.cpp)
+set_target_properties(physics PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 target_link_libraries(physics PRIVATE sfml-graphics)
 
 target_compile_options(physics PRIVATE
