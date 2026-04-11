@@ -68,7 +68,11 @@ class Mean : public IStatistics {
         }
 
         double eval() const override {
-            return sum / count; 
+            if (count == 0) {
+                return 0;
+            } else {
+                return sum / count; 
+            }
             }
 
         const char * name() const override {
@@ -76,7 +80,7 @@ class Mean : public IStatistics {
         }
 
     private:
-        double sum = 0;
+        double sum = 0.0;
         int count = 0;
     };
 
@@ -90,9 +94,13 @@ class Std : public IStatistics {
         }
 
         double eval() const override {
-            double mean = sum / count;
-            double dispercy = (sum_squared / count) - (mean * mean);
-            return std::sqrt(dispercy);
+            if (count == 0) {
+                return 0;
+            } else {
+                double mean = sum / count;
+                double dispercy = (sum_squared / count) - (mean * mean);
+                return std::sqrt(dispercy);
+            }
         }
 
         const char * name() const override {
@@ -115,7 +123,7 @@ class Pct : public IStatistics {
         double eval() const override {
             double pct = (percentil / 100.) * (values.size() - 1);
             auto it = values.begin();
-            std::advance(it, (int)(std::round(pct)));
+            std::advance(it, static_cast<int>(std::round(pct)));
             return *it;
         }
 
