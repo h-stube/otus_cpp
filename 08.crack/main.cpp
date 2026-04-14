@@ -14,7 +14,17 @@ void replaceLastFourBytes(std::vector<char> &data, uint32_t value) {
 }
 
 
-
+/** 
+  * @brief брутфорсит последние байты используя значения в диапазоне begin - end
+  * @details принимаетуже уже высчитанное значение crc32 основного тела файла
+  * @param data вектор с телом файла
+  * @param done флаг завершения
+  * @param foundValue сюда записывается результат
+  * @param originalCrc32 оригинальный (искомый) crc32 
+  * @param prefixCrc32 crc от первой части файла
+  * @param begin начало диапазона
+  * @param end конец диапазона
+  */
 void bruteforce(std::vector<char> data, 
                 std::atomic<bool> &done,
                 std::atomic<uint32_t> &foundValue,
@@ -26,9 +36,9 @@ void bruteforce(std::vector<char> data,
   for (uint32_t i = begin; i < end; i++){
     if (done || foundValue.load() != 0) return;
 
-   replaceLastFourBytes(data, uint32_t(i));
-    // Вычисляем CRC32 текущего вектора result
+    replaceLastFourBytes(data, uint32_t(i));
     uint32_t currentCrc32 = crc32(data.data() + data.size() - 4, 4, ~prefixCrc32);
+
     if (currentCrc32 == originalCrc32) {
       done = true;
       foundValue = i;
@@ -61,8 +71,8 @@ std::vector<char> hack(const std::vector<char> &original,
   
   const size_t maxVal = std::numeric_limits<uint32_t>::max();
 
-  std::atomic<bool> done = false;
-  std::atomic<uint32_t> foundValue{0};
+  std::atomic<bool> done = false; // флаг успешного завершения
+  std::atomic<uint32_t> foundValue{0}; // сюда будет записан результат
 
   int num_threads = std::thread::hardware_concurrency();
   std::vector<std::thread> threads;
@@ -76,7 +86,7 @@ std::vector<char> hack(const std::vector<char> &original,
     if (i == num_threads - 1){
       end = maxVal;
     } else {
-      end = begin + chunk;
+      end = begin + chunk; // последний поток читает до конца диапазона
     }
 
     threads.emplace_back(bruteforce,
@@ -92,8 +102,14 @@ std::vector<char> hack(const std::vector<char> &original,
   for (auto& t : threads){
     t.join();
   }
-  replaceLastFourBytes(result, foundValue.load());
-  return result;
+
+  if (foundValue.load() != 0) {
+    std::cout << "Success" << std::endl;
+    replaceLastFourBytes(result, foundValue.load());
+    return result;
+  } else {
+    std::cout << "Failed" << std::endl;
+  }
 }
 
 
