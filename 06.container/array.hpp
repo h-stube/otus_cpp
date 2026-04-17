@@ -2,7 +2,7 @@
 #include <initializer_list>
 
 
-#define resize_coeff 1.6
+static constexpr double resize_coeff = 1.6;
 template<typename T>
 class Array;
 
@@ -11,6 +11,10 @@ class Array {
     public:
         Array(const size_t init_size);
         Array(std::initializer_list<T> init);
+        Array(const Array& other);   
+        Array(Array&& other);
+        Array& operator=(const Array& other);
+        Array& operator=(Array&& other);
         ~Array();
 
         void push_back(const T& element);
@@ -69,7 +73,7 @@ void Array<T>::push_back(const T& element) {
         m_data[m_current_length] = element;
         m_current_length += 1;
     } else {
-        resize(m_current_length);
+        resize(m_max_length);
         m_data[m_current_length] = element; 
         m_current_length += 1;    
     }
@@ -80,7 +84,7 @@ void Array<T>::erase(const size_t index) {
     if(index >= m_current_length){
         return;
     }
-    for(size_t i = index; i < m_current_length; i++){
+    for(size_t i = index; i < m_current_length - 1; i++){
         m_data[i] = m_data[i + 1];
     }
     m_current_length -= 1;
@@ -116,7 +120,7 @@ void Array<T>::resize(const size_t new_size){
 
 template <typename T>
 void Array<T>::_copy(T *old_array, T* new_array){
-    for (size_t i = 0; i <= m_current_length; i++) {
+    for (size_t i = 0; i < m_current_length; i++) {
         new_array[i] = old_array[i];
     }
 };
@@ -130,10 +134,9 @@ const T& Array<T>::operator[](size_t index) const {
 template <typename T>
 std::ostream& operator<<(std::ostream& stream, const Array<T>& arr){
     for(size_t  i =  0; i < arr.size(); i++){
-        if (i == arr.size()){
-            stream << arr[i];
-        } else {
-            stream << arr[i] << ", ";
+        stream << arr[i];
+        if (i < arr.size() - 1){
+            stream << ", ";
         }
 
     }

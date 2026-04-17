@@ -19,9 +19,13 @@ template<typename T>
 class List {
     public:
         List(std::initializer_list<T> init);
+        List(const List&) = delete;
+        List& operator=(const List&) = delete;
+        List(List&&) = delete;
+        List& operator=(List&&) = delete;
         ~List();
 
-        void push_back(const T element);
+        void push_back(const T& element);
         void erase(const size_t index);
         void insert(const T& element, const size_t index);
         size_t size() const;
@@ -107,7 +111,7 @@ void List<T>::erase(const size_t index){
 
 template <typename T>
 void List<T>::insert(const T& element, const size_t index){
-    if (index >= m_size){
+    if (index > m_size){
         return;
     }
     TwoWayNode<T>* new_node = new TwoWayNode<T>{};
