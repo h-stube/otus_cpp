@@ -46,6 +46,8 @@ void process_text(std::mutex &mtx, const Filemap &filemap, Counter &counter, siz
     file.seekg(offset);
 
     std::string word;
+    Counter local_counter;
+
 
     while (file >> word) {
 
@@ -53,8 +55,12 @@ void process_text(std::mutex &mtx, const Filemap &filemap, Counter &counter, siz
         if (current_byte == -1 || (current_byte >= offset + can_read)) {
             break;
         }
-        std::lock_guard<std::mutex> guard(mtx);
-        ++counter[tolower(word)];
+        ++local_counter[tolower(word)];
+    }
+
+    std::lock_guard<std::mutex> guard(mtx);
+    for (const auto& [word, count] : local_counter) {
+    counter[word] += count;
     }
 }
 
