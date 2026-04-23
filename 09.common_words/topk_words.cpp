@@ -34,33 +34,62 @@ std::string tolower(const std::string &str) {
 };
 
 
-void process_text(std::mutex &mtx, const Filemap &filemap, Counter &counter, size_t start_byte, size_t end_byte) {
-    auto it = filemap.upper_bound(start_byte); // Находим в каком файле начинаем читать, по start_byte
-    --it;
-    size_t file_size = std::filesystem::file_size(it->second);
-    size_t file_start = it->first;
-    size_t offset = start_byte - file_start;
-    size_t can_read = std::min(end_byte - start_byte, file_size - offset);
-    std::ifstream file{it->second};
-
-    file.seekg(offset);
-
-    std::string word;
+void process_text(std::mutex &mtx, const Filemap &filemap, Counter &counter,
+                  size_t start_byte, size_t end_byte) {
     Counter local_counter;
+    size_t curr_filemap_pos = start_byte;
 
+    while (curr_filemap_pos < end_byte) {
+        // upper_bound возвращает итератор на первыый элем. который больше filemap_position
+        auto it = filemap.upper_bound(curr_filemap_pos);
+        --it;
 
-    while (file >> word) {
+        size_t file_start = it->first;
+        std::string filename = it->second;
+        size_t file_size = std::filesystem::file_size(filename);
+        size_t offset = curr_filemap_pos - file_start;
 
-        size_t current_byte = file.tellg();
-        if (current_byte == -1 || (current_byte >= offset + can_read)) {
-            break;
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            curr_filemap_pos = file_start + file_size;
+            continue;
         }
-        ++local_counter[tolower(word)];
+        // сдвигаем до нужного места
+        file.seekg(offset);
+
+        // пропускаем первое слово ( защита от попадания в середину слова )
+        std::string word;
+        if (offset != 0) {
+            file >> word;
+        }
+
+        // читаем слова
+        while (true) {
+            size_t pos = file.tellg();
+            if (pos == -1) {
+                break;
+            }
+
+            curr_filemap_pos = file_start + pos;
+            if (curr_filemap_pos >= end_byte) {
+                break;
+            }
+
+            if(!(file >> word)) {
+                break;
+            }
+            
+            local_counter[tolower(word)] += 1;
+        }
+
+        // след файл
+        curr_filemap_pos = file_start + file_size;
     }
 
-    std::lock_guard<std::mutex> guard(mtx);
+
     for (const auto& [word, count] : local_counter) {
-    counter[word] += count;
+        std::lock_guard<std::mutex> guard(mtx);
+        counter[word] += count;
     }
 }
 
@@ -73,7 +102,6 @@ int main(int argc, char *argv[]) {
     auto start = std::chrono::high_resolution_clock::now();
     Counter freq_dict;
 
-    // Evaluate work
     Filemap filemap;
     size_t total_size{0};
 
@@ -85,7 +113,6 @@ int main(int argc, char *argv[]) {
 
     }
 
-    // Create threads
     uint8_t num_threads = std::thread::hardware_concurrency();
     std::vector<std::thread> threads;
     std::mutex dict_mutex;
