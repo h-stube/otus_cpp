@@ -11,10 +11,10 @@ class Array {
     public:
         Array(const size_t init_size);
         Array(std::initializer_list<T> init);
-        Array(const Array& other);   
-        Array(Array&& other);
-        Array& operator=(const Array& other);
-        Array& operator=(Array&& other);
+        Array(const Array& other) = delete;   
+        Array(Array&& other) = delete;
+        Array& operator=(const Array& other) = delete;
+        Array& operator=(Array&& other) = delete;
         ~Array();
 
         void push_back(const T& element);
@@ -23,6 +23,7 @@ class Array {
         void resize(const size_t new_size);
         size_t size() const;
         
+        T& operator[](size_t index);
         const T& operator[](size_t index) const;
         friend std::ostream& operator<<(std::ostream& stream, const Array<T>& arr);
 
@@ -32,7 +33,6 @@ class Array {
         size_t m_current_length{0};
         size_t m_max_length{0};
         T* m_data{nullptr};
-        T* m_new_data{nullptr};
 
 
 };
@@ -108,12 +108,11 @@ void Array<T>::insert(const T& element, const size_t index) {
 
 template <typename T>
 void Array<T>::resize(const size_t new_size){
-    m_max_length = static_cast<int>(new_size * resize_coeff);
-    m_new_data = new T[m_max_length];
-    _copy(m_data, m_new_data);
+    m_max_length = static_cast<size_t>(new_size * resize_coeff);
+    T* new_data = new T[m_max_length];
+    _copy(m_data, new_data);
     delete[] m_data;
-    m_data = m_new_data;
-    m_new_data = nullptr;
+    m_data = new_data;
     m_current_length = new_size;
 };
 
@@ -125,6 +124,11 @@ void Array<T>::_copy(T *old_array, T* new_array){
     }
 };
 
+
+template <typename T>
+T& Array<T>::operator[](size_t index) {
+    return m_data[index];
+}
 
 template <typename T>
 const T& Array<T>::operator[](size_t index) const {
