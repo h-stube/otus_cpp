@@ -13,11 +13,10 @@
 #include <chrono>
 #include <filesystem>
 #include <thread>
-#include <shared_mutex>
 
 const size_t TOPK = 10;
 
-using Counter = std::map<std::string, size_t>;
+using Counter = std::unordered_map<std::string, size_t>;
 using Filemap = std::map<size_t, std::string>;
 
 std::string tolower(const std::string &str);
@@ -34,13 +33,11 @@ std::string tolower(const std::string &str) {
 };
 
 
-void process_text(std::mutex &mtx, const Filemap &filemap, Counter &counter,
+void process_text(const Filemap &filemap, Counter &counter,
                   size_t start_byte, size_t end_byte) {
-    Counter local_counter;
     size_t curr_filemap_pos = start_byte;
 
     while (curr_filemap_pos < end_byte) {
-        // upper_bound возвращает итератор на первыый элем. который больше filemap_position
         auto it = filemap.upper_bound(curr_filemap_pos);
         --it;
 
@@ -54,16 +51,13 @@ void process_text(std::mutex &mtx, const Filemap &filemap, Counter &counter,
             curr_filemap_pos = file_start + file_size;
             continue;
         }
-        // сдвигаем до нужного места
         file.seekg(offset);
 
-        // пропускаем первое слово ( защита от попадания в середину слова )
         std::string word;
         if (offset != 0) {
             file >> word;
         }
 
-        // читаем слова
         while (true) {
             size_t pos = file.tellg();
             if (pos == -1) {
@@ -75,21 +69,14 @@ void process_text(std::mutex &mtx, const Filemap &filemap, Counter &counter,
                 break;
             }
 
-            if(!(file >> word)) {
+            if (!(file >> word)) {
                 break;
             }
-            
-            local_counter[tolower(word)] += 1;
+
+            ++counter[tolower(word)];
         }
 
-        // след файл
         curr_filemap_pos = file_start + file_size;
-    }
-
-
-    for (const auto& [word, count] : local_counter) {
-        std::lock_guard<std::mutex> guard(mtx);
-        counter[word] += count;
     }
 }
 
@@ -100,7 +87,6 @@ int main(int argc, char *argv[]) {
     }
 
     auto start = std::chrono::high_resolution_clock::now();
-    Counter freq_dict;
 
     Filemap filemap;
     size_t total_size{0};
@@ -113,33 +99,35 @@ int main(int argc, char *argv[]) {
 
     }
 
-    uint8_t num_threads = std::thread::hardware_concurrency();
+    size_t num_threads = 4;
+    if (num_threads == 0) num_threads = 1;
+
     std::vector<std::thread> threads;
-    std::mutex dict_mutex;
+    std::vector<Counter> counters(num_threads);
 
-    uint32_t chunk_size = total_size / num_threads;
+    size_t chunk_size = total_size / num_threads;
 
-    for (uint8_t i = 0; i < num_threads; i++) {
+    for (size_t i = 0; i < num_threads; i++) {
         size_t start = i * chunk_size;
-        size_t end{0};
-        if (i == num_threads - 1){
-            end = total_size;
-        } else {
-            end = start + chunk_size; // последний поток читает до конца чанка
-        }
+        size_t end = (i == num_threads - 1) ? total_size : start + chunk_size;
         threads.emplace_back(process_text,
-                            std::ref(dict_mutex),
                             std::ref(filemap),
-                            std::ref(freq_dict),
+                            std::ref(counters[i]),
                             start,
                             end);
     }
-    
-    for (size_t i = 0; i < threads.size(); i++) {
-        threads[i].join();
+
+    for (auto& t : threads) {
+        t.join();
     }
 
-    print_topk(std::cout, freq_dict, TOPK);
+    for (size_t i = 1; i < num_threads; i++) {
+        for (auto& it = counters[i].begin(); it != counters[i].end(); ++it) {  
+            counters[0][it->first] += it->second;
+        }
+    }
+
+    print_topk(std::cout, counters[0], TOPK);
     auto end = std::chrono::high_resolution_clock::now();
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     std::cout << "Elapsed time is " << elapsed_ms.count() << " us\n";
