@@ -33,50 +33,16 @@ std::string tolower(const std::string &str) {
 };
 
 
-void process_text(const Filemap &filemap, Counter &counter,
-                  size_t start_byte, size_t end_byte) {
-    size_t curr_filemap_pos = start_byte;
+void process_text(const std::string &filename, Counter &counter) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << filename << '\n';
+        return;
+    }
 
-    while (curr_filemap_pos < end_byte) {
-        auto it = filemap.upper_bound(curr_filemap_pos);
-        --it;
-
-        size_t file_start = it->first;
-        std::string filename = it->second;
-        size_t file_size = std::filesystem::file_size(filename);
-        size_t offset = curr_filemap_pos - file_start;
-
-        std::ifstream file(filename);
-        if (!file.is_open()) {
-            curr_filemap_pos = file_start + file_size;
-            continue;
-        }
-        file.seekg(offset);
-
-        std::string word;
-        if (offset != 0) {
-            file >> word;
-        }
-
-        while (true) {
-            size_t pos = file.tellg();
-            if (pos == -1) {
-                break;
-            }
-
-            curr_filemap_pos = file_start + pos;
-            if (curr_filemap_pos >= end_byte) {
-                break;
-            }
-
-            if (!(file >> word)) {
-                break;
-            }
-
-            ++counter[tolower(word)];
-        }
-
-        curr_filemap_pos = file_start + file_size;
+    std::string word;
+    while (file >> word) {
+        ++counter[tolower(word)];
     }
 }
 
@@ -88,33 +54,15 @@ int main(int argc, char *argv[]) {
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    Filemap filemap;
-    size_t total_size{0};
-
-    for (int i = 1; i < argc; ++i) {
-
-        size_t size = std::filesystem::file_size(argv[i]);
-        filemap[total_size] = argv[i];
-        total_size += size;
-
-    }
-
-    size_t num_threads = 4;
-    if (num_threads == 0) num_threads = 1;
+    size_t num_threads = argc - 1;
 
     std::vector<std::thread> threads;
     std::vector<Counter> counters(num_threads);
 
-    size_t chunk_size = total_size / num_threads;
-
     for (size_t i = 0; i < num_threads; i++) {
-        size_t start = i * chunk_size;
-        size_t end = (i == num_threads - 1) ? total_size : start + chunk_size;
         threads.emplace_back(process_text,
-                            std::ref(filemap),
-                            std::ref(counters[i]),
-                            start,
-                            end);
+                            std::string(argv[i + 1]),
+                            std::ref(counters[i]));
     }
 
     for (auto& t : threads) {
@@ -122,7 +70,7 @@ int main(int argc, char *argv[]) {
     }
 
     for (size_t i = 1; i < num_threads; i++) {
-        for (auto& it = counters[i].begin(); it != counters[i].end(); ++it) {  
+        for (auto it = counters[i].begin(); it != counters[i].end(); ++it) {
             counters[0][it->first] += it->second;
         }
     }
